@@ -9,21 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const path_1 = require("path");
 const fs = require("fs");
-cmd();
-function cmd() {
-    const [, , inputFile = null, outputFile = null] = process.argv;
-    const t = s => typeof s === 'string';
-    const l = (i, o) => console.log(`Writing ${i} to ${o}`);
-    if (t(inputFile) && t(outputFile)) {
-        l(inputFile, outputFile);
-        writeDirTree(inputFile, outputFile);
-    }
-    else if (t(inputFile)) {
-        const autoOutput = `${inputFile}.dir.json`;
-        l(inputFile, autoOutput);
-        writeDirTree(inputFile, autoOutput);
-    }
-}
 function writeDirTree(path, output) {
     return __awaiter(this, void 0, void 0, function* () {
         const dirTree = yield createDirTree(path);
