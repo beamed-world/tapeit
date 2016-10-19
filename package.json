@@ -1,0 +1,21 @@
+{
+  "name": "tapeit",
+  "version": "2.0.5",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "npm run tsc",
+    "tsc": "./node_modules/typescript/bin/tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Beamed World <beamed.world@gmail.com> (https://github.com/Beamed-World)",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node": "1.6.0",
+    "typescript": "2.1.0-dev.20161018"
+  },
+  "dependencies": {
+    "ajv": "4.8.0"
+  }
+}

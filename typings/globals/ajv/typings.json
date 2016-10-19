@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/4b8091b4129bdad21aad9477fbe70e5384b5fb6e/ajv/ajv.d.ts",
+    "raw": "registry:dt/ajv#0.0.0+20160807022454",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/4b8091b4129bdad21aad9477fbe70e5384b5fb6e/ajv/ajv.d.ts"
+  }
+}
