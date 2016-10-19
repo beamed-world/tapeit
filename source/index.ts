@@ -23,25 +23,6 @@ type Dir =
     , kind: string
   }
 
-cmd()
-
-function cmd() {
-
-  const [ , , inputFile = null, outputFile = null ] = process.argv
-  const t = s => typeof s === 'string'
-  const l = (i, o) => console.log(`Writing ${i} to ${o}`)
-
-  if (t(inputFile) && t(outputFile)) {
-    l(inputFile, outputFile)
-    writeDirTree(inputFile, outputFile)
-  } else if (t(inputFile)) {
-    const autoOutput = `${inputFile}.dir.json`
-    l(inputFile, autoOutput)
-    writeDirTree(inputFile, autoOutput)
-  }
-
-}
-
 export async function writeDirTree(path: string, output: string) {
 
   const dirTree = await createDirTree(path)

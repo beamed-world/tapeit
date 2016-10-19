@@ -8,6 +8,9 @@
     "tsc": "./node_modules/typescript/bin/tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "tapeit": "index.js"
+  },
   "keywords": [],
   "author": "Beamed World <beamed.world@gmail.com> (https://github.com/Beamed-World)",
   "license": "ISC",
