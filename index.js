@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+const { writeDirTree } = require('tapeit')
+
 cmd()
 
 function cmd() {
