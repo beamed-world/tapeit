@@ -1,12 +1,13 @@
 {
   "name": "tapeit",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "",
   "main": "build/index.js",
   "scripts": {
     "build": "npm run tsc",
+    "mocha": "./node_modules/mocha/bin/mocha -r ts-node/register",
     "tsc": "./node_modules/typescript/bin/tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run mocha -- source/test.ts"
   },
   "bin": {
     "tapeit": "index.js"

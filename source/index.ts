@@ -36,8 +36,6 @@ export async function writeDirTree(path: string, output: string) {
 
     const pathRemove = path.replace(basename(path), '')
 
-    console.log('pathRemove', pathRemove)
-
     const normalizedDirTree = normalizeDirTree(dirTree, pathRemove)
     data = JSON.stringify(normalizedDirTree)
 

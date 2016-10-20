@@ -3,17 +3,33 @@
 import * as Ajv from 'ajv'
 import * as fs from 'fs'
 import { join } from 'path'
+import * as assert from 'assert'
 
 // Local imports
 
 import * as tapeit from './index'
 
-test_()
+describe('tapeit', () => {
+
+  it('should have a test', () => {
+    assert(true, 'It does have a test!')
+  })
+
+  it('should have a createDirTree function', () => {
+    assert(typeof tapeit.createDirTree === 'function')
+  })
+
+  it('should have a writeDirTree function', () => {
+    assert(typeof tapeit.writeDirTree === 'function')
+  })
+
+})
 
 async function test_() {
 
   const inputFolder = join(__dirname, '../resources/test-folder')
   const outputFile = join(__dirname, '../resources/test-folder.dir.json')
+
   tapeit.writeDirTree(inputFolder, outputFile)
     .then(() => {
       console.log('success')

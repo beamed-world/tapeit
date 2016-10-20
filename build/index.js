@@ -9,10 +9,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const path_1 = require("path");
 const fs = require("fs");
+function jd(...paths) {
+    return path_1.join(__dirname, ...paths);
+}
+exports.jd = jd;
 function writeDirTree(path, output) {
     return __awaiter(this, void 0, void 0, function* () {
         const dirTree = yield createDirTree(path);
-        const data = JSON.stringify(dirTree);
+        let data = JSON.stringify(dirTree);
+        if (path[0] === '/') {
+            const pathRemove = path.replace(path_1.basename(path), '');
+            const normalizedDirTree = normalizeDirTree(dirTree, pathRemove);
+            data = JSON.stringify(normalizedDirTree);
+        }
         return new Promise((resolve, reject) => {
             fs.writeFile(output, data, error => {
                 if (error) {
@@ -24,6 +33,18 @@ function writeDirTree(path, output) {
     });
 }
 exports.writeDirTree = writeDirTree;
+function normalizeDirTree(dirTree, path) {
+    dirTree.name = dirTree.name.replace(path, '');
+    if (dirTree.kind === 'file') {
+        return dirTree;
+    }
+    else if (Array.isArray(dirTree.content)) {
+        const content = dirTree.content;
+        dirTree.content = content.map(subTree => normalizeDirTree(subTree, path));
+        return dirTree;
+    }
+}
+exports.normalizeDirTree = normalizeDirTree;
 function createDirTree(path) {
     return __awaiter(this, void 0, void 0, function* () {
         const doesExist = yield exists(path);
