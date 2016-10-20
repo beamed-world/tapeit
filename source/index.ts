@@ -1,6 +1,6 @@
 'use strict'
 
-import { join } from 'path'
+import { join, basename } from 'path'
 import * as fs from 'fs'
 
 type FileName =
@@ -23,10 +23,25 @@ type Dir =
     , kind: string
   }
 
+export function jd(...paths: string[]) {
+  return join(__dirname, ...paths)
+}
+
 export async function writeDirTree(path: string, output: string) {
 
   const dirTree = await createDirTree(path)
-  const data = JSON.stringify(dirTree)
+  let data = JSON.stringify(dirTree)
+
+  if (path[0] === '/') {
+
+    const pathRemove = path.replace(basename(path), '')
+
+    console.log('pathRemove', pathRemove)
+
+    const normalizedDirTree = normalizeDirTree(dirTree, pathRemove)
+    data = JSON.stringify(normalizedDirTree)
+
+  }
 
   return new Promise((resolve, reject) => {
 
@@ -38,6 +53,20 @@ export async function writeDirTree(path: string, output: string) {
     })
 
   })
+
+}
+
+export function normalizeDirTree(dirTree: DirTree, path: string): DirTree {
+
+  dirTree.name = dirTree.name.replace(path, '')
+
+  if (dirTree.kind === 'file') {
+    return dirTree
+  } else if (Array.isArray(dirTree.content)) {
+    const content = dirTree.content as any[]
+    dirTree.content = content.map(subTree => normalizeDirTree(subTree, path))
+    return dirTree
+  }
 
 }
 
