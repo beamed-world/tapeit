@@ -3,31 +3,42 @@
 import { join, basename } from 'path'
 import * as fs from 'fs'
 
+type Content = string
+
 type FileName =
   string
 
 type DirTree =
   File | Dir
 
+type Kind = 'directory' | 'file'
+
 type File =
   {
     name: FileName
-    , content: string
-    , kind: string
+    , content: Content
+    , kind: Kind
   }
 
 type Dir =
   {
     name: FileName
     , content: DirTree[]
-    , kind: string
+    , kind: Kind
   }
 
-export function jd(...paths: string[]) {
-  return join(__dirname, ...paths)
-}
 
-export async function writeDirTree(path: string, output: string) {
+/**
+ * Takes a string to a file or folder, creates a DirTree,
+ * and then writes that to the file specified by the second
+ * argument
+ * 
+ * @export
+ * @param {string} path The input file or directory
+ * @param {string} output The output file to write to
+ * @returns Promise<void>
+ */
+export async function writeDirTree(path: string, output: string): Promise<void> {
 
   const dirTree = await createDirTree(path)
   let data = JSON.stringify(dirTree)
@@ -41,7 +52,7 @@ export async function writeDirTree(path: string, output: string) {
 
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
 
     fs.writeFile(output, data, error => {
       if (error) {
@@ -54,6 +65,15 @@ export async function writeDirTree(path: string, output: string) {
 
 }
 
+/**
+ * Takes a DirTree and removes excess path, for example when
+ * you pass an absolute path, this will removes the /../../../
+ * 
+ * @export
+ * @param {DirTree} dirTree
+ * @param {string} path
+ * @returns {DirTree}
+ */
 export function normalizeDirTree(dirTree: DirTree, path: string): DirTree {
 
   dirTree.name = dirTree.name.replace(path, '')
@@ -62,12 +82,22 @@ export function normalizeDirTree(dirTree: DirTree, path: string): DirTree {
     return dirTree
   } else if (Array.isArray(dirTree.content)) {
     const content = dirTree.content as any[]
-    dirTree.content = content.map(subTree => normalizeDirTree(subTree, path))
+    const subPath = join(path, dirTree.name, '/')
+    dirTree.content = content.map(subTree => normalizeDirTree(subTree, subPath))
     return dirTree
   }
 
 }
 
+
+/**
+ * Takes a path to a directory and returns on object
+ * representing that directory
+ * 
+ * @export
+ * @param {string} path
+ * @returns {Promise<DirTree>}
+ */
 export async function createDirTree(path: string): Promise<DirTree> {
 
   const doesExist = await exists(path)
@@ -96,13 +126,32 @@ export async function createDirTree(path: string): Promise<DirTree> {
   } else if (isAFile) {
 
     const content = await readFile(path)
+    const dirTree: DirTree = { name: path, content, kind: 'file' }
 
-    return { name: path, content, kind: 'file' }
+    return dirTree
 
   }
 
 }
 
+/**
+ * Helper function to avoid
+ * join(__dirname, ...)
+ * 
+ * @param {...string[]} paths
+ * @returns
+ */
+function jd(...paths: string[]): string {
+  return join(__dirname, ...paths)
+}
+
+/**
+ * Reads the files at the specified path and resolves
+ * with a base 64 encoding of its contents
+ * 
+ * @param {string} filename
+ * @returns {Promise<string>}
+ */
 async function readFile(filename: string): Promise<string> {
 
   return new Promise<string>((resolve, reject) => {
@@ -175,9 +224,9 @@ async function isFile(path: string): Promise<boolean> {
 
 }
 
-async function exists(path: string) {
+async function exists(path: string): Promise<boolean> {
 
-  return new Promise((resolve, reject) => {
+  return new Promise<boolean>((resolve, reject) => {
 
     fs.stat(path, (error, stats) => {
 

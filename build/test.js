@@ -1,12 +1,4 @@
 'use strict';
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
 const Ajv = require("ajv");
 const fs = require("fs");
 const path_1 = require("path");
@@ -23,34 +15,48 @@ describe('tapeit', () => {
     it('should have a writeDirTree function', () => {
         assert(typeof tapeit.writeDirTree === 'function');
     });
-});
-function test_() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const inputFolder = path_1.join(__dirname, '../resources/test-folder');
-        const outputFile = path_1.join(__dirname, '../resources/test-folder.dir.json');
+    it('should have a normalizeDirTree function', () => {
+        assert(typeof tapeit.normalizeDirTree === 'function');
+    });
+    const inputFolder = path_1.join(__dirname, '../resources/test-folder');
+    const outputFile = path_1.join(__dirname, '../resources/test-folder.dir.json');
+    it('should write a dir', done => {
+        fs.unlinkSync(outputFile);
         tapeit.writeDirTree(inputFolder, outputFile)
             .then(() => {
-            console.log('success');
+            assert(true);
+            done();
         })
             .catch(error => {
+            assert(false);
             console.log(error);
         });
     });
-}
-function test() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const inputFolder = path_1.join(__dirname, '../resources/test-folder');
-        const outputFile = path_1.join(__dirname, '../resources/test-folder.dir.json');
-        const dirTree = yield tapeit.createDirTree(inputFolder);
-        const schema = JSON.parse(fs.readFileSync(path_1.join(__dirname, '../json-tape.schema.json')).toString());
-        const ajv = new Ajv();
-        fs.writeFileSync('../resources/test-folder.dir.json', JSON.stringify(dirTree, null, '  '));
-        const valid = ajv.validate(schema, dirTree);
-        if (!valid) {
-            console.log(ajv.errors);
+    it('should have written a dir', () => {
+        const stats = fs.statSync(outputFile);
+        assert(stats.isFile());
+    });
+    let parsed = null;
+    it('should be valid json', () => {
+        try {
+            const file = fs.readFileSync(outputFile);
+            parsed = JSON.parse(file.toString());
+            assert(true);
         }
-        else {
-            console.log('Valid');
+        catch (error) {
+            assert(false, error);
         }
     });
-}
+    it('should conform to the JSON schema', () => {
+        if (parsed === null) {
+            return;
+        }
+        const schema = JSON.parse(fs.readFileSync(path_1.join(__dirname, '../json-tape.schema.json')).toString());
+        const ajv = new Ajv();
+        const valid = ajv.validate(schema, parsed);
+        if (!valid) {
+            assert(false, ajv.errorsText());
+        }
+        assert(true);
+    });
+});

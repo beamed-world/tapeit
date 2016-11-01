@@ -9,10 +9,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const path_1 = require("path");
 const fs = require("fs");
-function jd(...paths) {
-    return path_1.join(__dirname, ...paths);
-}
-exports.jd = jd;
+/**
+ * Takes a string to a file or folder, creates a DirTree,
+ * and then writes that to the file specified by the second
+ * argument
+ *
+ * @export
+ * @param {string} path The input file or directory
+ * @param {string} output The output file to write to
+ * @returns Promise<void>
+ */
 function writeDirTree(path, output) {
     return __awaiter(this, void 0, void 0, function* () {
         const dirTree = yield createDirTree(path);
@@ -33,6 +39,15 @@ function writeDirTree(path, output) {
     });
 }
 exports.writeDirTree = writeDirTree;
+/**
+ * Takes a DirTree and removes excess path, for example when
+ * you pass an absolute path, this will removes the /../../../
+ *
+ * @export
+ * @param {DirTree} dirTree
+ * @param {string} path
+ * @returns {DirTree}
+ */
 function normalizeDirTree(dirTree, path) {
     dirTree.name = dirTree.name.replace(path, '');
     if (dirTree.kind === 'file') {
@@ -40,11 +55,20 @@ function normalizeDirTree(dirTree, path) {
     }
     else if (Array.isArray(dirTree.content)) {
         const content = dirTree.content;
-        dirTree.content = content.map(subTree => normalizeDirTree(subTree, path));
+        const subPath = path_1.join(path, dirTree.name, '/');
+        dirTree.content = content.map(subTree => normalizeDirTree(subTree, subPath));
         return dirTree;
     }
 }
 exports.normalizeDirTree = normalizeDirTree;
+/**
+ * Takes a path to a directory and returns on object
+ * representing that directory
+ *
+ * @export
+ * @param {string} path
+ * @returns {Promise<DirTree>}
+ */
 function createDirTree(path) {
     return __awaiter(this, void 0, void 0, function* () {
         const doesExist = yield exists(path);
@@ -64,11 +88,29 @@ function createDirTree(path) {
         }
         else if (isAFile) {
             const content = yield readFile(path);
-            return { name: path, content, kind: 'file' };
+            const dirTree = { name: path, content, kind: 'file' };
+            return dirTree;
         }
     });
 }
 exports.createDirTree = createDirTree;
+/**
+ * Helper function to avoid
+ * join(__dirname, ...)
+ *
+ * @param {...string[]} paths
+ * @returns
+ */
+function jd(...paths) {
+    return path_1.join(__dirname, ...paths);
+}
+/**
+ * Reads the files at the specified path and resolves
+ * with a base 64 encoding of its contents
+ *
+ * @param {string} filename
+ * @returns {Promise<string>}
+ */
 function readFile(filename) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {

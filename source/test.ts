@@ -23,39 +23,67 @@ describe('tapeit', () => {
     assert(typeof tapeit.writeDirTree === 'function')
   })
 
+  it('should have a normalizeDirTree function', () => {
+    assert(typeof tapeit.normalizeDirTree === 'function')
+  })
+
+  const inputFolder = join(__dirname, '../resources/test-folder')
+  const outputFile = join(__dirname, '../resources/test-folder.dir.json')
+
+  it('should write a dir', done => {
+
+    fs.unlinkSync(outputFile)
+
+    tapeit.writeDirTree(inputFolder, outputFile)
+      .then(() => {
+        assert(true)
+        done()
+      })
+      .catch(error => {
+        assert(false)
+        console.log(error)
+      })
+
+  })
+
+  it('should have written a dir', () => {
+
+    const stats = fs.statSync(outputFile)
+
+    assert(stats.isFile())
+
+  })
+
+  let parsed = null
+
+  it('should be valid json', () => {
+
+    try {
+      const file = fs.readFileSync(outputFile)
+      parsed = JSON.parse(file.toString())
+      assert(true)
+    } catch (error) {
+      assert(false, error)
+    }
+
+  })
+
+  it('should conform to the JSON schema', () => {
+
+    if (parsed === null) {
+      return
+    }
+
+    const schema = JSON.parse(fs.readFileSync(join(__dirname, '../json-tape.schema.json')).toString())
+    const ajv = new Ajv()
+    const valid = ajv.validate(schema, parsed)
+
+    if (!valid) {
+      assert(false, ajv.errorsText())
+    }
+
+    assert(true)
+
+  })
+
 })
-
-async function test_() {
-
-  const inputFolder = join(__dirname, '../resources/test-folder')
-  const outputFile = join(__dirname, '../resources/test-folder.dir.json')
-
-  tapeit.writeDirTree(inputFolder, outputFile)
-    .then(() => {
-      console.log('success')
-    })
-    .catch(error => {
-      console.log(error)
-    })
-
-}
-
-async function test() {
-
-  const inputFolder = join(__dirname, '../resources/test-folder')
-  const outputFile = join(__dirname, '../resources/test-folder.dir.json')
-  const dirTree = await tapeit.createDirTree(inputFolder)
-  const schema = JSON.parse(fs.readFileSync(join(__dirname, '../json-tape.schema.json')).toString())
-  const ajv = new Ajv()
-
-  fs.writeFileSync('../resources/test-folder.dir.json', JSON.stringify(dirTree, null, '  '))
-
-  const valid = ajv.validate(schema, dirTree)
-
-  if (!valid) {
-    console.log(ajv.errors)
-  } else {
-    console.log('Valid')
-  }
-
-}
